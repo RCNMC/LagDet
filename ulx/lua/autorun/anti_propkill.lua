@@ -16,6 +16,9 @@ else
     net.Send( self )
   end
 
+if file.Exists( "PropProtect/config.txt", "DATA" )
+file.Write( "PropProtect/config.txt", "\n" )	
+	
 hook.Add( "PhysgunPickup", "NoPushIndex", function(ply,ent)
 	if (IsValid(ply) and IsValid(ent)) and ent.CPPICanPhysgun and ent:CPPICanPhysgun(ply) then
 		local collision = ent:GetCollisionGroup()
