@@ -89,7 +89,7 @@ end)
             prop:EnableMotion(false)
             attacker:SetColor( Color( 255, 0, 0, 255 ) )
 			for k, v in pairs( player.GetAll() ) do
-				if table.HasValue({usergroups}, v:GetNWString("usergroup")) then
+				if table.HasValue({"admin","founder","superadmin","mod"}, ply:GetNWString("usergroup")) then
 					v:PrintColor( Color( 255, 0, 0 ), "Prop Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost prop-killed by ", owner, "!" )
 				end
 			end
@@ -100,7 +100,12 @@ end)
                 if (attacker:InVehicle()) then
                     owner = attacker:CPPIGetOwner()
                     attacker:EnableMotion(false)
-                    attacker:SetColor( Color( 255, 0, 0, 255 ) )
+			for k, v in pairs( player.GetAll() ) do
+				if table.HasValue({"admin","founder","superadmin","mod"}, ply:GetNWString("usergroup")) then
+					v:PrintColor( Color( 255, 0, 0 ), "CDM Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost CDM'd by ", owner, "!" )
+				end
+			end
+			
                     return false
                 end
             else
