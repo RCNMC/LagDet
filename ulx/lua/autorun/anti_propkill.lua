@@ -102,30 +102,29 @@ hook.Add("OnPhysgunFreeze", "NoPushPhysgunFreeze", function(_, phys, ent, ply)
 	end
 end)
 
-  function antiPropDamage (victim, attacker)
+  function antiPropandCarDamage (victim, attacker)
     if (attacker:IsValid()) then
         if (attacker:GetClass() == "prop_physics" or attacker:IsWorld() or attacker:GetClass() == "prop_vehicle_jeep") then
-            owner = attacker:CPPIGetOwner():Nick()
-			prop = attacker:GetPhysicsObject()
-            prop:EnableMotion(false)
-            attacker:SetColor( Color( 255, 0, 0, 255 ) )
-			for k, v in pairs( player.GetAll() ) do
-				if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
-					v:PrintColor( Color( 255, 0, 0 ), "Prop Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost prop-killed by ", owner, "!" )
-				end
+        	owner = attacker:CPPIGetOwner():Nick()
+		prop = attacker:GetPhysicsObject()
+        	prop:EnableMotion(false)
+        	attacker:SetColor( Color( 255, 0, 0, 255 ) )
+		for k, v in pairs( player.GetAll() ) do
+			if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
+				v:PrintColor( Color( 255, 0, 0 ), "Prop Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost prop-killed by ", owner, "!" )
 			end
-			
-            return false
+		end			
+            	return false
         else
             if (attacker:IsPlayer()) then
                 if (attacker:InVehicle()) then
                     owner = attacker:CPPIGetOwner()
                     attacker:EnableMotion(false)
                     for k, v in pairs( player.GetAll() ) do
-						if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
-							v:PrintColor( Color( 255, 0, 0 ), "CDM Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost CDM'd by ", owner, "!" )
-						end
-					end
+			if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
+				v:PrintColor( Color( 255, 0, 0 ), "CDM Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost CDM'd by ", owner, "!" )
+			end
+		    end
                     return false
                 end
             else
@@ -135,7 +134,7 @@ end)
     end
   end
 
-  hook.Add("PlayerShouldTakeDamage", "nopropdamage", antiPropDamage)
+  hook.Add("PlayerShouldTakeDamage", "noproporcardamage", antiPropandCarDamage)
 
   
   hook.Add("OnPhysgunReload", "NoMassUnfreeze", function( physgun, ply )
