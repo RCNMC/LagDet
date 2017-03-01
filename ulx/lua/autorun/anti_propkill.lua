@@ -1,9 +1,4 @@
-if CLIENT then
-
-  net.Receive( "PrintColor", function()
-    chat.AddText( unpack( net.ReadTable() ) )
-  end )
-  
+-- client
 local Frame = vgui.Create( "DFrame" )
 Frame:SetTitle( "Debug Menu" )
 Frame:SetSize( 300, 300 )
@@ -31,7 +26,7 @@ net.Recieve( "OpenDaMenu", function()
 end )
 
 else
-
+-- server
   util.AddNetworkString( "PrintColor" )
   util.AddNetworkString( "OpenDaMenu" )
   util.AddNetworkString( "TestMsgProp" )
@@ -56,63 +51,6 @@ else
 	end
   end )
 
-hook.Add( "PhysgunPickup", "NoPushIndex", function(ply,ent)
-	if (IsValid(ply) and IsValid(ent)) and ent.CPPICanPhysgun and ent:CPPICanPhysgun(ply) then
-		local collision = ent:GetCollisionGroup()
-		ent.AntiPush.Collision = (collision == COLLISION_GROUP_INTERACTIVE_DEBRIS) and COLLISION_GROUP_NONE or collision
-		if collision == COLLISION_GROUP_NONE then 
-			ent:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS) 
-		end
-	end
-end)
-
-hook.Add( "PhysgunDrop", "NoPushNoThrow", function(ply,ent)
-	if (IsValid(ply) and IsValid(ent)) and ent.AntiPush and ent.AntiPush.Collision then
-		ent:SetCollisionGroup(ent.AntiPush.Collision)
-	end
-end)
-
-hook.Add("OnPhysgunFreeze", "NoPushPhysgunFreeze", function(_, phys, ent, ply)
-	if (IsValid(ply) and IsValid(ent)) and ent.AntiPush and ent.AntiPush.Collision then
-		ent:SetCollisionGroup(ent.AntiPush.Collision)
-	end
-end)
-
-  function antiPropDamage (victim, attacker)
-    if (attacker:IsValid()) then
-        if (attacker:GetClass() == "prop_physics" or attacker:IsWorld() or attacker:GetClass() == "prop_vehicle_jeep") then
-            owner = attacker:CPPIGetOwner():Nick()
-	    prop = attacker:GetPhysicsObject()
-            prop:EnableMotion(false)
-            attacker:SetColor( Color( 255, 0, 0, 255 ) )
-			for k, v in pairs( player.GetAll() ) do
-				if table.HasValue({"admin","founder","superadmin","mod"}, ply:GetNWString("usergroup")) then
-					v:PrintColor( Color( 255, 0, 0 ), "Prop Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost prop-killed by ", owner, "!" )
-				end
-			end
-			
-            return false
-        else
-            if (attacker:IsPlayer()) then
-                if (attacker:InVehicle()) then
-                    owner = attacker:CPPIGetOwner()
-                    attacker:EnableMotion(false)
-			for k, v in pairs( player.GetAll() ) do
-				if table.HasValue({"admin","founder","superadmin","mod"}, ply:GetNWString("usergroup")) then
-					v:PrintColor( Color( 255, 0, 0 ), "CDM Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost CDM'd by ", owner, "!" )
-				end
-			end
-			
-                    return false
-                end
-            else
-                return true
-            end
-        end
-    end
-  end
-
-  hook.Add("PlayerShouldTakeDamage", "nopropdamage", antiPropDamage)
 
   concommand.Add( "logan_propkill_debug", function( ply, cmd, args )
 	if ply:IsSuperAdmin() then
@@ -125,4 +63,118 @@ end)
 	end
   end )
 	
+end
+
+if CLIENT then
+
+  net.Receive( "PrintColor", function()
+    chat.AddText( unpack( net.ReadTable() ) )
+  end )
+  
+else
+
+  util.AddNetworkString( "PrintColor" )
+
+  local Meta = FindMetaTable( "Player" )
+
+  function Meta:PrintColor( ... )
+    net.Start( "PrintColor" )
+    net.WriteTable( { ... } )
+    net.Send( self )
+  end
+
+hook.Add( "PhysgunPickup", "NoPushIndex", function(ply,ent)
+	if (IsValid(ply) and IsValid(ent)) and ent.CPPICanPhysgun and ent:CPPICanPhysgun(ply) then
+		local collision = ent:GetCollisionGroup()
+		if collision == 0 then 
+			ent:SetCollisionGroup(COLLISION_GROUP_WEAPON) 
+		end
+	end
+	if (ent:IsPlayer() and ent.isFroze) then
+		ent:PrintColor( Color( 255, 0, 0 ), "Staff Action ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255), "You were un-frozen by ", ply:Nick(), "!" )
+		ent.isFroze = false
+		ent:GodDisable()
+		for k, v in pairs( player.GetAll() ) do
+			if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
+				v:PrintColor( Color( 255, 0, 0 ), "Staff Action ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), ply:Nick(), " has unfroze ", ent:Nick(), "!" )
+			end
+		end
+	end
+end)
+
+hook.Add("OnPhysgunFreeze", "NoPushPhysgunFreeze", function(_, phys, ent, ply)
+	if IsValid(ply) and IsValid(ent) then
+		local trace = { start = ent:GetPos(), endpos = ent:GetPos(), filter = ent, ignoreworld = true }
+	    local tr = util.TraceEntity( trace, ent )
+		if ( tr.Hit and tr.Entity.IsPlayer and tr.Entity:IsPlayer()) then
+			owner = ent:CPPIGetOwner()
+			owner:PrintColor( Color( 255, 0, 0 ), "Prop Protection ", Color( 255, 255, 255), "| Your prop was not froze due to it being inside of someone!")
+			ent:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+		else
+			ent:SetCollisionGroup(COLLISION_GROUP_NONE)
+		end
+	end
+	if ent:IsPlayer() then
+		ent:Freeze( true )
+        	ent:SetMoveType(MOVETYPE_NONE)
+		ent:PrintColor( Color( 255, 0, 0 ), "Staff Action ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255), "You were frozen by ", ply:Nick(), "!" )
+		ent.isFroze = true
+		ent:GodEnable()
+		for k, v in pairs( player.GetAll() ) do
+			if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
+				v:PrintColor( Color( 255, 0, 0 ), "Staff Action ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), ply:Nick(), " has froze ", ent:Nick(), "!" )
+			end
+		end
+	end
+end)
+
+  function antiPropDamage (victim, attacker)
+    if (attacker:IsValid()) then
+        if (attacker:GetClass() == "prop_physics" or attacker:IsWorld() or attacker:GetClass() == "prop_vehicle_jeep") then
+            owner = attacker:CPPIGetOwner():Nick()
+			prop = attacker:GetPhysicsObject()
+            prop:EnableMotion(false)
+            attacker:SetColor( Color( 255, 0, 0, 255 ) )
+			for k, v in pairs( player.GetAll() ) do
+				if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
+					v:PrintColor( Color( 255, 0, 0 ), "Prop Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost prop-killed by ", owner, "!" )
+				end
+			end
+			
+            return false
+        else
+            if (attacker:IsPlayer()) then
+                if (attacker:InVehicle()) then
+                    owner = attacker:CPPIGetOwner()
+                    attacker:EnableMotion(false)
+                    for k, v in pairs( player.GetAll() ) do
+						if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
+							v:PrintColor( Color( 255, 0, 0 ), "CDM Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), victim:Nick(), " was almost CDM'd by ", owner, "!" )
+						end
+					end
+                    return false
+                end
+            else
+                return true
+            end
+        end
+    end
+  end
+
+  hook.Add("PlayerShouldTakeDamage", "nopropdamage", antiPropDamage)
+
+  
+  hook.Add("OnPhysgunReload", "NoMassUnfreeze", function( physgun, ply )
+	return false
+  end)
+
+   local function BlockSuicide(ply)
+	if ply.isFroze then
+		ply:PrintColor( Color( 255, 0, 0 ), "Error ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), "You cannot kill yourself when frozen!" )
+		return false
+	else
+		return true
+end
+hook.Add( "CanPlayerSuicide", "BlockSuicide", BlockSuicide )
+
 end
