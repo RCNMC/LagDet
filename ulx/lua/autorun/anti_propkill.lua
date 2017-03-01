@@ -1,4 +1,9 @@
--- client
+if CLIENT then
+
+  net.Receive( "PrintColor", function()
+    chat.AddText( unpack( net.ReadTable() ) )
+  end )
+  
 local Frame = vgui.Create( "DFrame" )
 Frame:SetTitle( "Debug Menu" )
 Frame:SetSize( 300, 300 )
@@ -26,7 +31,7 @@ net.Recieve( "OpenDaMenu", function()
 end )
 
 else
--- server
+
   util.AddNetworkString( "PrintColor" )
   util.AddNetworkString( "OpenDaMenu" )
   util.AddNetworkString( "TestMsgProp" )
@@ -45,43 +50,12 @@ else
 	
   net.Receive( "TestMsgProp", function( len, ply )
     	for k, v in pairs( player.GetAll() ) do
-		if table.HasValue({"admin","founder","superadmin","mod"}, ply:GetNWString("usergroup")) then
+		if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
 			v:PrintColor( Color( 255, 0, 0 ), "Prop Protection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), ply:Nick(), " was almost prop-killed by some dude!  Note: This is just a debug message!" )
 		end
 	end
   end )
 
-
-  concommand.Add( "logan_propkill_debug", function( ply, cmd, args )
-	if ply:IsSuperAdmin() then
-	    if ply:SteamID64() == "76561198073713846" then
-	        ply:OpenDaMenu()
-	    else
-		print(ply:SteamID64() .. "\n\n")
-	        print("This is only for the creator of the addon to test things out!  Read more about it in the update logs!")
-	    end
-	end
-  end )
-	
-end
-
-if CLIENT then
-
-  net.Receive( "PrintColor", function()
-    chat.AddText( unpack( net.ReadTable() ) )
-  end )
-  
-else
-
-  util.AddNetworkString( "PrintColor" )
-
-  local Meta = FindMetaTable( "Player" )
-
-  function Meta:PrintColor( ... )
-    net.Start( "PrintColor" )
-    net.WriteTable( { ... } )
-    net.Send( self )
-  end
 
 hook.Add( "PhysgunPickup", "NoPushIndex", function(ply,ent)
 	if (IsValid(ply) and IsValid(ent)) and ent.CPPICanPhysgun and ent:CPPICanPhysgun(ply) then
@@ -168,13 +142,25 @@ end)
 	return false
   end)
 
-   local function BlockSuicide(ply)
+  local function BlockSuicide(ply)
 	if ply.isFroze then
 		ply:PrintColor( Color( 255, 0, 0 ), "Error ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), "You cannot kill yourself when frozen!" )
 		return false
 	else
 		return true
-end
-hook.Add( "CanPlayerSuicide", "BlockSuicide", BlockSuicide )
+	end
+  end
+  hook.Add( "CanPlayerSuicide", "BlockSuicide", BlockSuicide )
 
+		
+  concommand.Add( "logan_propkill_debug", function( ply, cmd, args )
+	if ply:IsSuperAdmin() then
+	    if ply:SteamID64() == "76561198073713846" then
+	        ply:OpenDaMenu()
+	    else
+		print(ply:SteamID64() .. "\n\n")
+	        print("This is only for the creator of the addon to test things out!  Read more about it in the update logs!")
+	    end
+	end
+  end )
 end
