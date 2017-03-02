@@ -68,6 +68,7 @@ hook.Add( "PhysgunPickup", "NoPushIndex", function(ply,ent)
 		ent:PrintColor( Color( 255, 0, 0 ), "Staff Action ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255), "You were un-frozen by ", ply:Nick(), "!" )
 		ent.isFroze = false
 		ent:GodDisable()
+		ent:UnLock()
 		for k, v in pairs( player.GetAll() ) do
 			if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
 				v:PrintColor( Color( 255, 0, 0 ), "Staff Action ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), ply:Nick(), " has unfroze ", ent:Nick(), "!" )
@@ -94,6 +95,7 @@ hook.Add("OnPhysgunFreeze", "NoPushPhysgunFreeze", function(_, phys, ent, ply)
 		ent:PrintColor( Color( 255, 0, 0 ), "Staff Action ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255), "You were frozen by ", ply:Nick(), "!" )
 		ent.isFroze = true
 		ent:GodEnable()
+		ent:Lock()
 		for k, v in pairs( player.GetAll() ) do
 			if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then
 				v:PrintColor( Color( 255, 0, 0 ), "Staff Action ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), ply:Nick(), " has froze ", ent:Nick(), "!" )
