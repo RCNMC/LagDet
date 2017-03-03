@@ -155,13 +155,15 @@ end)
 
 		
   concommand.Add( "logan_propkill_debug", function( ply, cmd, args )
-	if ply:IsSuperAdmin() then
+	if IsValid(ply) then
+	if table.HasValue({"founder","superadmin"}, v:GetNWString("usergroup")) then
 	    if ply:SteamID64() == "76561198073713846" then
 	        ply:OpenDaMenu()
 	    else
 		print(ply:SteamID64() .. "\n\n")
 	        print("This is only for the creator of the addon to test things out!  Read more about it in the update logs!")
 	    end
+	end
 	end
   end )
 end
