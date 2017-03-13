@@ -36,7 +36,13 @@ else
   util.AddNetworkString( "OpenDaMenu" )
   util.AddNetworkString( "TestMsgProp" )
   local Meta = FindMetaTable( "Player" )
-
+  FAdmin.ScoreBoard.Player:AddInformation("Testing", function(ply) 
+    if table.HasValue({"admin","founder","superadmin","mod"}, v:GetNWString("usergroup")) then 
+	return "Is Cool Kid"
+    else
+	return "Is Not Cool Kid"
+    end
+  end)
   function Meta:PrintColor( ... )
     net.Start( "PrintColor" )
     net.WriteTable( { ... } )
