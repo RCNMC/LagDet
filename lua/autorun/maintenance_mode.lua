@@ -40,6 +40,7 @@ end
 -- Dev Server --
 
 
+
 if CLIENT then
 
 net.Receive( "PrintColor", function()
@@ -59,6 +60,16 @@ function Meta:PrintColor( ... )
 end
 
 CreateConVar( "in_maintenance", 1, {"FCVAR_ARCHIVE"}, "Toggle maintenance on and off" )
+
+cvars.AddChangeCallback( "maintenance", function( convar_name, value_old, value_new )
+  if convar_name == "in_maintenance" then
+    if value_new == 1 then
+      RunConsoleCommand("hostname", "Arty's", "DarkRP", "Dev", "\|/", "Closed", "to", "unranked", "players")
+    else
+      RunConsoleCommand("hostname", "Arty's", "DarkRP", "Dev", "\|/", "Open", "to", "unranked", "players")
+    end
+  end
+end )
 
 hook.Add( "CheckPassword", "access_whitelist", function( steamID64, ip, svpass, clpass, name )
   Var = GetConVar( "in_maintenance" )
