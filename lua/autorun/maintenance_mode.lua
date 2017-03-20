@@ -1,5 +1,20 @@
 -- Main Server --
+if CLIENT then
+  net.Receive( "PrintColor", function()
+	  chat.AddText( unpack( net.ReadTable() ) )
+  end )
+else
+	
+  util.AddNetworkString( "PrintColor" )
 
+  local Meta = FindMetaTable( "Player" )
+
+  function Meta:PrintColor( ... )
+	  net.Start( "PrintColor" )
+		net.WriteTable( { ... } )
+	  net.Send( self )
+  end
+	
 CreateConVar( "in_maintenance", 0, {"FCVAR_ARCHIVE"}, "Toggle maintenance on and off" )
 
 hook.Add( "CheckPassword", "access_whitelist", function( steamID64, ip, svpass, clpass, name )
@@ -14,9 +29,24 @@ hook.Add( "CheckPassword", "access_whitelist", function( steamID64, ip, svpass, 
 		end
 	end
 end )
-
+end
 -- Dev Server --
+if CLIENT then
+  net.Receive( "PrintColor", function()
+	  chat.AddText( unpack( net.ReadTable() ) )
+  end )
+else
+	
+  util.AddNetworkString( "PrintColor" )
 
+  local Meta = FindMetaTable( "Player" )
+
+  function Meta:PrintColor( ... )
+	  net.Start( "PrintColor" )
+		net.WriteTable( { ... } )
+	  net.Send( self )
+  end
+	
 CreateConVar( "in_maintenance", 1, {"FCVAR_ARCHIVE"}, "Toggle maintenance on and off" )
 
 hook.Add( "CheckPassword", "access_whitelist", function( steamID64, ip, svpass, clpass, name )
@@ -31,3 +61,4 @@ hook.Add( "CheckPassword", "access_whitelist", function( steamID64, ip, svpass, 
 		end
 	end
 end )
+end
