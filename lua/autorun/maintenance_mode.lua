@@ -34,7 +34,7 @@ hook.Add( "CheckPassword", "access_whitelist", function( steamID64, ip, svpass, 
     local conply = tosteamid(steamID64)							
     if not table.HasValue({"admin","founder","superadmin","mod","dev"}, conply:GetNWString("usergroup")) then
       for k, v in pairs( player.GetAll() ) do
-        v:PrintColor( Color( 255, 0, 0 ), "Failed Connection ", Color( 0, 0, 0 ), "\|/ ", Color( 255, 255, 255 ), name, " has attempted to connect but was denied.\nReason: Insignificant permissions" )
+        v:PrintColor( Color( 255, 0, 0 ), "Failed Connection ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), name, " has attempted to connect but was denied.\nReason: Insignificant permissions" )
       end
       return false, "---------[ Arty's DarkRP ]---------\n\n           Access Denied\n Reason:  Insignificant permissions"
     end
