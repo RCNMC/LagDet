@@ -6,7 +6,7 @@ if CLIENT then
     net.WriteStr(ply:Name())
     net.SendToServer()
   else
-    // not enough cash
+    -- not enough cash
   end
 end)
 else
