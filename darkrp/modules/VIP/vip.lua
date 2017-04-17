@@ -1,19 +1,8 @@
-if CLIENT then
-(some event
+concommand.Add("getVIP", function(ply)
   if ply:canAfford(100000) then
     ply:addMoney(-100000)
-    net.Start("MoneySuccess")
-    net.WriteStr(ply:Name())
-    net.SendToServer()
+    RunConsoleCommand("sg", "rank " .. name .. " vip 0")
   else
-    -- not enough cash
+    ply:PrintColor( Color( 255, 0, 0 ), "VIP ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), "You don't have the required cash!")
   end
 end)
-else
-util.netvar blah blah
-
-net.Receive("MoneySuccess", function(name)
-  RunConsoleCommand("sg", "rank " .. name .. " vip 0")
-end)
-
-end
