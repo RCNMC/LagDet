@@ -15,3 +15,5 @@ util.netvar blah blah
 net.Receive("MoneySuccess", function(name)
   RunConsoleCommand("sg", "rank " .. name .. " vip 0")
 end)
+
+end
