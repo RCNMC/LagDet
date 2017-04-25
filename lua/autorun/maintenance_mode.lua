@@ -20,6 +20,7 @@ if SERVER then
 
   local function WhitelistSave()
     file.Write("bpdrp_whitelist/whitelist.txt", util.TableToJSON(whitelist))
+    MsgC( Color( 255, 255, 255 ), "[", Color( 0, 255, 0 ), "Maintenance Mode", Color( 255, 255, 255 ), "] [", Color( 0, 255, 255 ), "INFO", Color( 255, 255, 255 ), "] Whitelist Saved\n" )
   end
   hook.Add("ShutDown", "bpdrp_whitelist_save", WhitelistSave)
 
@@ -31,9 +32,9 @@ if SERVER then
     if json then
       whitelist = util.JSONToTable(json) or whitelist
     end
-      
-    print("Whitelist loaded!")
-    print(whitelist.count .. " player(s) whitelisted!")
+		
+    MsgC( Color( 255, 255, 255 ), "[", Color( 0, 255, 0 ), "Maintenance Mode", Color( 255, 255, 255 ), "] [", Color( 0, 255, 255 ), "INFO", Color( 255, 255, 255 ), "] Whitelist Loaded. ", whitelist.count, " player(s) in the whitelist!\n" ) 
+    
   end
   
   local function WhitelistUpdate(mode, id)
