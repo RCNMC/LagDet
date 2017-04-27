@@ -2,6 +2,9 @@ if SERVER then
 
   MsgC( Color( 255, 255, 255 ), "[", Color( 0, 255, 0 ), "Maintenance Mode", Color( 255, 255, 255 ), "] [", Color( 0, 255, 255 ), "INFO", Color( 255, 255, 255 ), "] Starting up...\n" )
   
+  CreateConVar( "in_maintenance", 0, {"FCVAR_ARCHIVE"}, "Toggle maintenance on and off" )
+  DaVar = GetConVar( "in_maintenance" )
+  
   util.AddNetworkString("bpdrp_whitelist_open")
   util.AddNetworkString( "PrintColor" )
 
@@ -34,7 +37,9 @@ if SERVER then
     end
 		
     MsgC( Color( 255, 255, 255 ), "[", Color( 0, 255, 0 ), "Maintenance Mode", Color( 255, 255, 255 ), "] [", Color( 0, 255, 255 ), "INFO", Color( 255, 255, 255 ), "] Whitelist Loaded. ", whitelist.count, " player(s) in the whitelist!\n" ) 
-    
+    if whitelist.count == 0 then
+      timer.Create( "NoPeopleInWhitelist", 300, 0, WhitelistIsEmpty )
+    end
   end
   
   local function WhitelistUpdate(mode, id)
@@ -45,6 +50,14 @@ if SERVER then
     whitelist.count = whitelist.count + mode
   end
   
+  local function WhitelistIsEmpty()
+    if whitelist.count == 0 then
+      MsgC( Color( 255, 255, 255 ), "[", Color( 0, 255, 0 ), "Maintenance Mode", Color( 255, 255, 255 ), "] [", Color( 255, 204, 0 ), "WARN", Color( 255, 255, 255 ), "] Whitelist is empty!  Add someone with !whitelist in-game!\n" )
+    else
+      timer.Remove( "NoPeopleInWhitelist" )
+    end
+  end
+    
   local function WhitelistMenuOpen(ply)
     net.Start("bpdrp_whitelist_open")
       net.WriteUInt(whitelist.count, 11)
@@ -54,24 +67,24 @@ if SERVER then
     net.Send(ply)
   end
   
+  local function ToggleMaintenance(ply)
+    if DaVar:GetInt() == 1 then
+      DaVar:SetInt( 0 )
+      toggled = Color( 255, 0, 0 ), "disabled"
+    else
+      DaVar:SetInt( 1 )
+      toggled = Color( 0, 255, 0 ), "enabled"
+    end
+    for k, v in pairs( player.GetAll() ) do
+      if v:IsAdmin() then
+        v:PrintColor( Color( 255, 0, 0 ), "Maintenance ", Color( 255, 255, 255 ), "| ", Color( 192, 192, 192 ), ply:Nick(), Color( 255, 255, 255 ), " has ", toggled, Color( 255, 255, 255 ), " maintenance mode!" )
+      end
+    end
+    MsgC(  Color( 255, 255, 255 ), "[", Color( 0, 255, 0 ), "Maintenance Mode", Color( 255, 255, 255 ), "] [", Color( 0, 255, 255 ), "INFO", Color( 255, 255, 255 ), "] ", Color( 192, 192, 192 ), ply:Nick(), Color( 255, 255, 255 ), " has ", toggled, Color( 255, 255, 255 ), " maintenance mode!\n" )
+  end
+  
   -- Commands
   
-  concommand.Add("maintenance_enable", function(ply)
-    if IsValid(ply) and not ply:IsSuperAdmin() then return end
-	
-    DaVar:SetInt( 1 )
-    for k, v in pairs( player.GetAll() ) do
-	    v:PrintColor( Color( 255, 0, 0 ), "ADMIN ACTION ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), ply:Nick(), " has enabled maintenance!" )
-	end
-  end)
-  concommand.Add("maintenance_disable", function(ply)
-    if IsValid(ply) and not ply:IsSuperAdmin() then return end
-	
-    DaVar:SetInt( 0 )
-    for k, v in pairs( player.GetAll() ) do
-	    v:PrintColor( Color( 255, 0, 0 ), "ADMIN ACTION ", Color( 0, 0, 0 ), "| ", Color( 255, 255, 255 ), ply:Nick(), " has disabled maintenance!" )
-	end
-  end)
   concommand.Add("whitelist_save", function(ply)
     if IsValid(ply) and not ply:IsSuperAdmin() then return end
 
@@ -99,13 +112,18 @@ if SERVER then
     WhitelistMenuOpen(ply)
   end)
   
-  hook.Add("PlayerSay", "bpdrp_whitelist_command", function(ply, text)
+  hook.Add("PlayerSay", "bpdrp_whitelist_commands", function(ply, text)
     if not IsValid(ply) then return end
     if not ply:IsSuperAdmin() then return end
     
     if string.lower(text) == "!whitelist" then
       WhitelistMenuOpen(ply)
       return ""
+    else
+      if string.lower(text) == "!togglemm" then
+        ToggleMaintenance(ply)
+        return ""
+      end
     end
   end)
   
@@ -120,14 +138,11 @@ if SERVER then
 	end
   end)
   
-  CreateConVar( "in_maintenance", 0, {"FCVAR_ARCHIVE"}, "Toggle maintenance on and off" )
-  DaVar = GetConVar( "in_maintenance" )
   if DaVar:GetInt() == 1 then
     MsgC( Color( 255, 255, 255 ), "[", Color( 0, 255, 0 ), "Maintenance Mode", Color( 255, 255, 255 ), "] [", Color( 0, 255, 255 ), "INFO", Color( 255, 255, 255 ), "] Server was last in maintenance mode, therefore it will be when server is up.\n")
   else
     MsgC( Color( 255, 255, 255 ), "[", Color( 0, 255, 0 ), "Maintenance Mode", Color( 255, 255, 255 ), "] [", Color( 0, 255, 255 ), "INFO", Color( 255, 255, 255 ), "] Server was not in maintenance mode, therefore it won't be when server is up.\n")
   end
-  
   MsgC( Color( 255, 255, 255 ), "[", Color( 0, 255, 0 ), "Maintenance Mode", Color( 255, 255, 255 ), "] [", Color( 0, 255, 255 ), "INFO", Color( 255, 255, 255 ), "] Up and running successfully!\n" )
   
 else
