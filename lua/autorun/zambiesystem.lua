@@ -12,10 +12,10 @@ end
 
 hook.Add( "OnPlayerChat", "SpawnCommand", function( ply, strText, bTeam, bDead )
 
-	strText = string.lower( strText )
+  strText = string.lower( strText )
 
-	if ( strText == "!spawn" ) then
-		if ply:GetPData( "posx", 0 ) != 0 then
+  if ( strText == "!spawn" ) then
+    if ply:GetPData( "posx", 0 ) != 0 then
       -- teleport to location
       -- give all weapons back and perks
       ply:PrintColor( Color( 0, 255, 255 ), "Server | ", Color( 255, 255, 255 ), "You've now spawned in and have 30 seconds of spawn protection.  Good luck." )
@@ -23,8 +23,8 @@ hook.Add( "OnPlayerChat", "SpawnCommand", function( ply, strText, bTeam, bDead )
       ply.Spawned = true
       return true 
     end
-	else if ( strText == "!admin" ) then
-	  if ply:GetPData( "staff", 0 ) >= 1 then
+  else if ( strText == "!admin" ) then
+    if ply:GetPData( "staff", 0 ) >= 1 then
       if ply.Admin == 0 then
         if ply.Spawned then
           -- save players data then toggle admin mode
@@ -38,3 +38,7 @@ hook.Add( "OnPlayerChat", "SpawnCommand", function( ply, strText, bTeam, bDead )
     return true
   end
 end )
+
+function saveData( ply )
+		-- do save shit
+end
