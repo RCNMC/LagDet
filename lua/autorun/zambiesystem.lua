@@ -9,7 +9,7 @@ function fullyloadedthing(ply)
     ply:PrintColor( Color( 0, 255, 255 ), "Server | ", Color( 255, 255, 255 ), "Welcome back to Buck Pony Servers, ", ply:Nick(), "! Type !spawn or press F2 to get into the action!" )
   end
 end
-
+if server then
 hook.Add( "OnPlayerChat", "SpawnCommand", function( ply, strText, bTeam, bDead )
 
   strText = string.lower( strText )
@@ -40,5 +40,7 @@ hook.Add( "OnPlayerChat", "SpawnCommand", function( ply, strText, bTeam, bDead )
 end )
 
 function saveData( ply )
-		-- do save shit
+  -- do save shit
+end
+
 end
